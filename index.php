@@ -19,7 +19,6 @@
     $apList[] = $row;
   }
 
-
  ?>
 <div class="container">
   <form action="add_process/stud_score_add.php" method="post" onsubmit="return makeArray(this);">

@@ -179,49 +179,58 @@ require("view/header.php");
 
 <input type="button" value="시간표 보러가기" class="btn btn-success btn-lg">
 
-<table id="timetable" class="table">
-  <thead></thead>
-  <tbody></tbody>
-  <tfoot></tfoot>
-</table>
-
-<div class="accordion_banner list-group">
-    <div class="accordion_title list-group-item">Main</div>
-    <div class="accordion_sub">
-      <ul class="list-group">
-        <li class="list-group-item testListBtn" data-tid="1" data-ampm="am">SAT 오전</li>
-        <li class="list-group-item testListBtn" data-tid="1" data-ampm="pm">SAT 오후</li>
-        <li class="list-group-item testListBtn" data-tid="2" data-ampm="am">ACT 오전</li>
-        <li class="list-group-item testListBtn" data-tid="2" data-ampm="pm">ACT 오후</li>
-      </ul>
-    </div>
-    <div class="accordion_title list-group-item">SAT2 subject</div>
-    <div class="accordion_sub">
-      <ul id="check" class="list-group">
-        <?php
-          foreach($sat2List as $sl){
-            echo '<li data-tid="'.$sl['test_id'].'" data-rep="'.$sl['rep'].'" class="list-group-item testListBtn">'.$sl['rep'].'차 '.$sl['test_subject'].'</li>';
-          }
-        ?>
-      </ul>
-    </div>
-    <div class="accordion_title list-group-item">AP</div>
-    <div class="accordion_sub">
-      <ul id="check" class="list-group">
-        <?php
-          foreach($apList as $al){
-            echo '<li data-tid="'.$al['test_id'].'" data-rep="'.$al['rep'].'" class="list-group-item testListBtn">'.$al['rep'].'차 '.$al['test_subject'].'</li>';
-          }
-        ?>
-      </ul>
-    </div>
-    <div class="accordion_title list-group-item">실력up</div>
-    <div class="accordion_sub">
-      <ul id="check" class="list-group">
-        <li class="list-group-item testListBtn" data-tid="3" data-timeslot="3">3교시 TOEFL</li>
-        <li class="list-group-item testListBtn" data-tid="3" data-timeslot="4">4교시 TOEFL</li>
-      </ul>
-    </div>
+<div class="row">
+  <div class="col-xs-8">
+    <table id="timetable" class="table">
+      <thead></thead>
+      <tbody></tbody>
+      <tfoot></tfoot>
+    </table>
+  </div>
+  <div class="accordion_banner list-group col-xs-4">
+      <div class="accordion_title list-group-item">Main</div>
+      <div class="accordion_sub">
+        <ul class="list-group">
+          <li class="list-group-item testListBtn" data-tid="1" data-ampm="am">SAT 오전</li>
+          <li class="list-group-item testListBtn" data-tid="1" data-ampm="pm">SAT 오후</li>
+          <li class="list-group-item testListBtn" data-tid="2" data-ampm="am">ACT 오전</li>
+          <li class="list-group-item testListBtn" data-tid="2" data-ampm="pm">ACT 오후</li>
+        </ul>
+      </div>
+      <div class="accordion_title list-group-item">SAT2 subject</div>
+      <div class="accordion_sub">
+        <ul id="check" class="list-group">
+          <?php
+            foreach($sat2List as $sl){
+              echo '<li data-tid="'.$sl['test_id'].'" data-rep="'.$sl['rep'].'" class="list-group-item testListBtn">'.$sl['rep'].'차 '.$sl['test_subject'].'</li>';
+            }
+          ?>
+        </ul>
+      </div>
+      <div class="accordion_title list-group-item">AP</div>
+      <div class="accordion_sub">
+        <ul id="check" class="list-group">
+          <?php
+            foreach($apList as $al){
+              echo '<li data-tid="'.$al['test_id'].'" data-rep="'.$al['rep'].'" class="list-group-item testListBtn">'.$al['rep'].'차 '.$al['test_subject'].'</li>';
+            }
+          ?>
+        </ul>
+      </div>
+      <div class="accordion_title list-group-item">실력up</div>
+      <div class="accordion_sub">
+        <ul id="check" class="list-group">
+          <li class="list-group-item testListBtn" data-tid="3" data-timeslot="3">3교시 TOEFL</li>
+          <li class="list-group-item testListBtn" data-tid="3" data-timeslot="4">4교시 TOEFL</li>
+        </ul>
+      </div>
+  </div>
+</div>
+<div>
+  <table class='table' id='priceTable'>
+    <thead></thead>
+    <tbody></tbody>
+  </table>
 </div>
 
 <script>
@@ -307,11 +316,13 @@ require("view/header.php");
   var abc = '';
   var subject = '';
   var testInfo = <?=json_encode($testInfo);?>;
-  console.log(testInfo);
 
   // 히든으로 집어 넣기
   $.each(testInfo, function(index, info){
     abc = '<div class="hidden" data-tid="'+info.test_id+'" data-timeslot="'+info.timeslot+'" data-weekslot="'+info.weekslot+'" data-rep="'+info.rep+'" data-ampm="'+info.ampm+'" onclick="bye();">'+info.test_subject+'</div>';
+    if(info.test_sort == 'SAT2' || info.test_sort == 'AP'){
+      abc = '<div class="hidden" data-tid="'+info.test_id+'" data-timeslot="'+info.timeslot+'" data-weekslot="'+info.weekslot+'" data-rep="'+info.rep+'" data-ampm="'+info.ampm+'" onclick="bye();">'+info.test_sort+' '+info.test_subject+'</div>';
+    }
     $('td.slot[data-timeslot="'+info.timeslot+'"][data-weekslot="'+info.weekslot+'"]').append(abc);
   })
 
@@ -360,7 +371,7 @@ require("view/header.php");
   // 하루치 수업 빼기
   function bye(){
     $('td.slot div.nohidden').click(function(){
-      $(this).toggleClass('hidden').toggleClass('nohidden');
+      $(this).addClass('hidden').removeClass('nohidden');
     });
     jungbok();
   }
@@ -388,11 +399,39 @@ require("view/header.php");
     if(score.stud_grade == 9){
       $('td.slot [data-tid="3"][data-timeslot="3"]').removeClass('hidden').addClass('nohidden');
       $('.testListBtn[data-tid="3"][data-timeslot="3"]').addClass('active');
-    }
-    if(score.stud_grade == 9){
       $('td.slot [data-tid="31"][data-timeslot="4"]').removeClass('hidden').addClass('nohidden');
       $('.testListBtn[data-tid="31"][data-timeslot="4"]').addClass('active');
     }
+    if(score.stud_grade == 10){
+      function sat2recommend(test_id){
+        $('td.slot [data-tid="'+test_id+'"][data-rep="1"]').removeClass('hidden').addClass('nohidden');
+        $('.testListBtn[data-tid="'+test_id+'"][data-rep="1"]').addClass('active');
+      }
+      if(score.test_id !== 7){
+        sat2recommend(7);
+      } else if(score.test_id !== 4){
+        sat2recommend(4);
+      } else if(score.test_id !== 8){
+        sat2recommend(8);
+      }
+    }
   });
+
+  for(i=0; i<4; i++){
+    for(j=peri.start_week; j<parseInt(peri.start_week)+parseInt(peri.class_week); j++){
+      var $slot = $('td.slot[data-timeslot="'+(i+1)+'"][data-weekslot="'+j+'"]');
+      var tia = $slot.children('.nohidden').attr('data-tid');
+      console.log(tia);
+/*
+      var childLength = $slot.children('.nohidden').length
+      console.log(childLength);
+      if(childLength == 0){
+        $('td.slot [data-tid="31"][data-timeslot="'+(i+1)+'"][data-weekslot="'+j+'"]').removeClass('hidden').addClass('nohidden');
+        $('td.slot [data-tid="3"][data-timeslot="'+(i+1)+'"][data-weekslot="'+j+'"]').removeClass('hidden').addClass('nohidden');
+      }
+*/
+    }
+  }
+
 
 </script>
