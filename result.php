@@ -1,6 +1,90 @@
 <?php
 require("view/header.php");
-require_once("proc/dao_result.php");
+  $stud_id = $_GET['stud_id'];
+  // 학생 정보 가져오기
+  $sql = "SELECT * FROM student WHERE stud_id='".$stud_id."'";
+  //$sql = "SELECT * FROM student WHERE stud_id='133'";  $stud_id 가져와서 작업하다가, 일단 임의로 133으로 정함ㅇㅋ
+  $result = mysqli_query($conn, $sql);
+  $stud = mysqli_fetch_assoc($result);
+
+  // 학생 점수 정보 가져오기
+  //$sql = "SELECT * FROM stud_score as ss LEFT JOIN test as t ON ss.test_id = t.test_id WHERE stud_id='".$stud_id."'";
+  $sql = "SELECT * FROM stud_score as ss LEFT JOIN test as t ON ss.test_id = t.test_id LEFT JOIN student as s ON ss.stud_id = s.stud_id WHERE ss.stud_id='".$stud_id."'";
+  $result = mysqli_query($conn, $sql);
+  $studScore = array();
+  while($row = mysqli_fetch_assoc($result)){
+    $studScore[] = $row;
+  }
+
+  // 대학 정보 가져오기
+  $sql = "SELECT * FROM university WHERE uni_sort = 'top10' OR uni_sort = 'top25' OR uni_sort = 'top50'";
+  $result = mysqli_query($conn, $sql);
+  $university = array();
+  while($row = mysqli_fetch_assoc($result)){
+    $university[] = $row;
+  }
+
+
+// 여기서 부터는 시간표용
+  // 학생 수강 기간 정보 가져오기
+  // $sql = "SELECT * FROM stud_when WHERE stud_id='".$stud_id."'";
+  $sql = "SELECT * FROM stud_when WHERE stud_id='".$stud_id."'";
+  $result = mysqli_query($conn, $sql);
+  $period = mysqli_fetch_assoc($result);
+
+  // SAT 정보 가져오기
+  $sql = "SELECT * FROM test_info as ti LEFT JOIN test as t ON ti.test_id = t.test_id WHERE test_subject='SAT'";
+  $result = mysqli_query($conn, $sql);
+  $satInfo = array();
+  while($row = mysqli_fetch_assoc($result))
+  {
+    $satInfo[] = $row;
+  }
+
+  // ACT 정보 가져오기
+  $sql = "SELECT * FROM test_info as ti LEFT JOIN test as t ON ti.test_id = t.test_id WHERE test_subject='ACT'";
+  $result = mysqli_query($conn, $sql);
+  $actInfo = array();
+  while($row = mysqli_fetch_assoc($result))
+  {
+    $actInfo[] = $row;
+  }
+
+  // TOEFL 정보 가져오기
+  $sql = "SELECT * FROM test_info as ti LEFT JOIN test as t ON ti.test_id = t.test_id WHERE test_subject='TOEFL'";
+  $result = mysqli_query($conn, $sql);
+  $toeflInfo = array();
+  while($row = mysqli_fetch_assoc($result))
+  {
+    $toeflInfo[] = $row;
+  }
+
+  // SAT2 리스트 가져오기
+  $sql = "SELECT * FROM test_info as ti LEFT JOIN test as t ON ti.test_id = t.test_id WHERE test_sort='SAT2' GROUP BY rep, test_subject;";
+  $result = mysqli_query($conn, $sql);
+  $sat2List = array();
+  while($row = mysqli_fetch_assoc($result))
+  {
+    $sat2List[] = $row;
+  }
+
+  // AP 리스트 가져오기
+  $sql = "SELECT * FROM test_info as ti LEFT JOIN test as t ON ti.test_id = t.test_id WHERE test_sort='AP' GROUP BY rep, test_subject;";
+  $result = mysqli_query($conn, $sql);
+  $apList = array();
+  while($row = mysqli_fetch_assoc($result))
+  {
+    $apList[] = $row;
+  }
+
+  // test_info 가져오기
+  $sql = "SELECT * FROM test_info as ti LEFT JOIN test as t ON ti.test_id = t.test_id";
+  $result = mysqli_query($conn, $sql);
+  $testInfo = array();
+  while($row = mysqli_fetch_assoc($result))
+  {
+    $testInfo[] = $row;
+  }
 ?>
 
 <h1><?=$stud['stud_name']?> 학생</h1>
@@ -227,7 +311,7 @@ require_once("proc/dao_result.php");
 
   // 히든으로 집어 넣기
   $.each(testInfo, function(index, info){
-    abc = '<div class="hidden" data-tid="'+info.test_id+'" data-timeslot="'+info.timeslot+'" data-weekslot="'+info.weekslot+'" data-rep="'+info.rep+'" data-ampm="'+info.ampm+'">'+info.test_subject+'</div>';
+    abc = '<div class="hidden" data-tid="'+info.test_id+'" data-timeslot="'+info.timeslot+'" data-weekslot="'+info.weekslot+'" data-rep="'+info.rep+'" data-ampm="'+info.ampm+'" onclick="bye();">'+info.test_subject+'</div>';
     $('td.slot[data-timeslot="'+info.timeslot+'"][data-weekslot="'+info.weekslot+'"]').append(abc);
   })
 
@@ -244,17 +328,19 @@ require_once("proc/dao_result.php");
     var $tslot2 = $('td.slot [data-tid="'+tid+'"][data-ampm="'+tampm+'"]');
     // TOEFL, 기타수업 data-tid, data-timeslot 이 같은것
     var $tslot3 = $('td.slot [data-tid="'+tid+'"][data-timeslot="'+ttimeslot+'"]');
-    // 같은 timeslot, weekslot에 있는 것들 히든으로 변경
-    var $rtslot = $('td.slot [data-timeslot="'+ttimeslot+'"][data-weekslot="'+tweekslot+'"]');
 
-    $tslot.toggleClass('hidden').toggleClass('nohidden');
+    // 과목 선택시 시간표에 보이게 안보이게
+    function toggleNoIsHidden($target){
+      if($target.is('.hidden')){
+        $target.addClass('nohidden').toggleClass('hidden')
+      } else {
+        $target.removeClass('nohidden').toggleClass('hidden')
+      }
+    }
+    toggleNoIsHidden($tslot);
+    toggleNoIsHidden($tslot2);
+    toggleNoIsHidden($tslot3);
     $(this).toggleClass('active');
-    $tslot2.toggleClass('hidden').toggleClass('nohidden');
-    $(this).toggleClass('active');
-    $tslot3.toggleClass('hidden').toggleClass('nohidden');
-    $(this).toggleClass('active');
-
-    $rtslot.find('.nohidden').addClass('hidden');
 
     jungbok();
   });
@@ -271,15 +357,13 @@ require_once("proc/dao_result.php");
     })
   }
 
-
   // 하루치 수업 빼기
   function bye(){
-    $('td.slot').click(function(){
-      $('td.slot [data-selected="true"]').toggleClass('hidden').toggleClass('nohidden');
+    $('td.slot div.nohidden').click(function(){
+      $(this).toggleClass('hidden').toggleClass('nohidden');
     });
     jungbok();
   }
-
 
   // 메뉴 아코디언
   $(".accordion_banner .accordion_title").click(function(){
@@ -294,19 +378,19 @@ require_once("proc/dao_result.php");
   // 자동 시간표 설정
   $.each(studScore, function(index, score){
     if(score.test_id == 1){
-      $('td.slot [data-tid="1"][data-ampm="am"]').removeClass('hidden').addClass('nohidden').attr('data-selected', 'true');
+      $('td.slot [data-tid="1"][data-ampm="am"]').removeClass('hidden').addClass('nohidden');
       $('.testListBtn[data-tid="1"][data-ampm="am"]').addClass('active');
     }
     if(score.test_id == 2){
-      $('td.slot [data-tid="2"][data-ampm="am"]').removeClass('hidden').addClass('nohidden').attr('data-selected', 'true');
+      $('td.slot [data-tid="2"][data-ampm="am"]').removeClass('hidden').addClass('nohidden');
       $('.testListBtn[data-tid="2"][data-ampm="am"]').addClass('active');
     }
     if(score.stud_grade == 9){
-      $('td.slot [data-tid="3"][data-timeslot="3"]').removeClass('hidden').addClass('nohidden').attr('data-selected', 'true');
+      $('td.slot [data-tid="3"][data-timeslot="3"]').removeClass('hidden').addClass('nohidden');
       $('.testListBtn[data-tid="3"][data-timeslot="3"]').addClass('active');
     }
     if(score.stud_grade == 9){
-      $('td.slot [data-tid="31"][data-timeslot="4"]').removeClass('hidden').addClass('nohidden').attr('data-selected', 'true');
+      $('td.slot [data-tid="31"][data-timeslot="4"]').removeClass('hidden').addClass('nohidden');
       $('.testListBtn[data-tid="31"][data-timeslot="4"]').addClass('active');
     }
   });

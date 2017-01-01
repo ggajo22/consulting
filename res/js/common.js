@@ -271,7 +271,7 @@ function procJSON(jsonData,options){
 	options = $.extend(defaults,options);
 
 	if(options[jsonData.msg])
-		options[jsonData.msg].call();
+		options[jsonData.msg].call(jsonData.content);
 	else if(options['default']){
 		options['default'].call();
 	}else{

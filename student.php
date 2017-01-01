@@ -2,7 +2,7 @@
   require("view/header.php");
  ?>
  <div class="container">
-   <form action="result.php" method="post">
+   <form action="result.php" method="post" onsubmit="return insertStudentAndRedirectToResult(this)">
      <div id="stud_name_input" class="form-group">
        <label for="stud_name">학생이름</label>
        <input type="text" class="form-control" id="stud_name" name="stud_name" placeholder="학생이름을 입력하세요">
@@ -42,3 +42,35 @@
      <input type="submit" id="submit_btn" name="" value="제출" class="btn btn-success">
    </form>
  </div>
+
+<script>
+function insertStudentAndRedirectToResult(form){
+  $.post('proc/dao_result.php',$(form).serialize(),function(jsonResult){ //jsonResult == proc/dao_result.php 에서 받아온 내용
+    jsonResult = getJSON(jsonResult); // 결과를 json 파싱
+
+    //파싱된 내용이 아마 이렇게 써지겟지
+    // 아래 procJson은 내가만든함수,
+    // 첫번째인자로 파싱된 제이슨오브젝트를 넣어주면
+    // 두번째인자에 {}안에 msg가 ok인지, msg가 err인지 확인해서
+    // 그에맞는 함수를 실행
+    procJSON(jsonResult,{
+      'ok':function(){ // 여기서는 이리로밖에 안들어가겟지
+
+        location.href = form.action+"?stud_id="+jsonResult.content.lastStudId // 위에 내용보면 content.lastStudId 가 113이라고돼잇죠
+        //그대로 쓴거고
+        //location.href 는 그냥 리다이렉트하는거
+        // ?stud_id = 113 이라고 뒤에 붙인거는
+        // url에다가 데이터 담아서 준거에요. 이거를 GET방식이라고 부르죠
+        //그렇다면 위에 한 명령문은 이렇게 되겟지.
+        // locaion.href = 'result.php?stud_id=113'; ㅇㅋ?
+        // 주소창에 그냥 붙여넣어도 잘 돼죠?
+
+      },
+      'err':function(){
+          alert('학생 정보 입력에 실패했습니다!!!!');
+      }
+    });
+  });
+  return false;
+}
+</script>
