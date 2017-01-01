@@ -1,6 +1,5 @@
 <?php
-  $conn = mysqli_connect("localhost", "root", "autoset");
-  mysqli_select_db($conn, "consulting");
+  require("../config/db_config.php");
 
   $data = $_POST['data'];
   // stud_id = '1' 으로 임시로 아이디값 줌, 학생정보 입력할 때 업데이트
