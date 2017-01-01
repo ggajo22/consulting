@@ -15,6 +15,12 @@
     .padding30{
       padding-top: 40px;
     }
+    .accordion_sub {
+      display : none;
+    }
+    .accordion_title {
+      background-color : #FAF4C0;
+    }
     </style>
     <script src="./res/js/jquery-1.11.3.min.js"></script>
     <script src="./res/jquery-ui/jquery-ui.min.js"></script>

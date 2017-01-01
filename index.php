@@ -90,7 +90,7 @@
   }
 
   $('#submit_btn').click(function(){
-    $(location).attr('href', 'http://localhost/consulting/student.php');
+    $(location).attr('href', 'http://localhost/consulting/period.php');
   })
 
 

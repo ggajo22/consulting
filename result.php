@@ -1,36 +1,7 @@
 <?php
 require("view/header.php");
 require_once("proc/dao_result.php");
-
-// SAT2 리스트 가져오기
-$sql = "SELECT test_id, test_sort, test_subject FROM test WHERE test_sort='SAT2' GROUP BY test_subject";
-$result = mysqli_query($conn, $sql);
-$sat2List = array();
-while($row = mysqli_fetch_assoc($result))
-{
-  $sat2List[] = $row;
-}
-
-// AP 리스트 가져오기
-$sql = "SELECT test_id, test_sort, test_subject FROM test WHERE test_sort='AP' GROUP BY test_subject";
-$result = mysqli_query($conn, $sql);
-$apList = array();
-while($row = mysqli_fetch_assoc($result))
-{
-  $apList[] = $row;
-}
-
-// test_info 가져오기
-$sql = "SELECT * FROM test_info as ti LEFT JOIN test as t ON ti.test_id = t.test_id";
-$result = mysqli_query($conn, $sql);
-$testInfo = array();
-while($row = mysqli_fetch_assoc($result))
-{
-  $testInfo[] = $row;
-}
-
 ?>
-
 
 <h1><?=$stud['stud_name']?> 학생</h1>
 <table id="stud_info" class="table">
@@ -124,31 +95,57 @@ while($row = mysqli_fetch_assoc($result))
 
 <input type="button" value="시간표 보러가기" class="btn btn-success btn-lg">
 
-<table id="timetable" class="table table-hover">
-  <thead>
-    <th>1주차</th>
-    <th>2주차</th>
-    <th>3주차</th>
-    <th>4주차</th>
-  </thead>
+<table id="timetable" class="table">
+  <thead></thead>
   <tbody></tbody>
   <tfoot></tfoot>
 </table>
 
-<ul id="check" class="list-group">
-  <?php
-    foreach($sat2List as $sl){
-      echo '<li id="test_'.$sl['test_id'].'" class="list-group-item" onclick="select_subject();">'.$sl['test_subject'].'</li>';
-    }
-  ?>
-</ul>
+<div class="accordion_banner list-group">
+    <div class="accordion_title list-group-item">Main</div>
+    <div class="accordion_sub">
+      <ul class="list-group">
+        <li class="list-group-item testListBtn" data-tid="1" data-ampm="am">SAT 오전</li>
+        <li class="list-group-item testListBtn" data-tid="1" data-ampm="pm">SAT 오후</li>
+        <li class="list-group-item testListBtn" data-tid="2" data-ampm="am">ACT 오전</li>
+        <li class="list-group-item testListBtn" data-tid="2" data-ampm="pm">ACT 오후</li>
+      </ul>
+    </div>
+    <div class="accordion_title list-group-item">SAT2 subject</div>
+    <div class="accordion_sub">
+      <ul id="check" class="list-group">
+        <?php
+          foreach($sat2List as $sl){
+            echo '<li data-tid="'.$sl['test_id'].'" data-rep="'.$sl['rep'].'" class="list-group-item testListBtn">'.$sl['rep'].'차 '.$sl['test_subject'].'</li>';
+          }
+        ?>
+      </ul>
+    </div>
+    <div class="accordion_title list-group-item">AP</div>
+    <div class="accordion_sub">
+      <ul id="check" class="list-group">
+        <?php
+          foreach($apList as $al){
+            echo '<li data-tid="'.$al['test_id'].'" data-rep="'.$al['rep'].'" class="list-group-item testListBtn">'.$al['rep'].'차 '.$al['test_subject'].'</li>';
+          }
+        ?>
+      </ul>
+    </div>
+    <div class="accordion_title list-group-item">실력up</div>
+    <div class="accordion_sub">
+      <ul id="check" class="list-group">
+        <li class="list-group-item testListBtn" data-tid="3" data-timeslot="3">3교시 TOEFL</li>
+        <li class="list-group-item testListBtn" data-tid="3" data-timeslot="4">4교시 TOEFL</li>
+      </ul>
+    </div>
+</div>
 
 <script>
   // 학생 정보 뿌리기
   var studScore = <?=json_encode($studScore);?>;
   var str='';
   $.each(studScore, function(index, info){
-    str += '<th width="20px">'+info.test_subject+'</th>';
+    str += '<th>'+info.test_subject+'</th>';
   })
   $('#stud_info thead').append(str);
 
@@ -203,36 +200,115 @@ while($row = mysqli_fetch_assoc($result))
 // 시간표 작성
 
   //테이블 만들기
+  var peri = <?=json_encode($period);?>;
+  // $period 가져와서 테이블 사이즈 조절
+  var periStr = '<th width="5%">교시</th>';
+  for(i=peri.start_week; i<parseInt(peri.start_week)+parseInt(peri.class_week); i++){
+    periStr +='<th width="'+(90/parseInt(peri.class_week))+'%">'+i+'주차</th>';
+  }
+  $('#timetable thead').append(periStr);
+
   var tbStr = '';
   for(i=0; i<4; i++){
-    tbStr += '<tr>'
-    for(j=0; j<4; j++){
-      tbStr +='<td id="'+i+'_'+j+'">1</td>';
+    tbStr += '<tr><td>'+(i+1)+'교시</td>';
+    for(j=peri.start_week; j<parseInt(peri.start_week)+parseInt(peri.class_week); j++){
+      tbStr +='<td class="slot" data-timeslot="'+(i+1)+'" data-weekslot="'+j+'"></td>';
     }
     tbStr += '</tr>'
   }
   $('#timetable tbody').append(tbStr);
+
 
   // 테이블에 각 과목들 hidden 으로 넣어놓기
   var abc = '';
   var subject = '';
   var testInfo = <?=json_encode($testInfo);?>;
   console.log(testInfo);
+
+  // 히든으로 집어 넣기
   $.each(testInfo, function(index, info){
-    abc = '<div class="hidden" id="'+info.test_id+'_'+info.timeslot+'_'+info.weekslot+'">'+info.test_subject+'</div>';
-    $('#'+info.timeslot+'_'+info.weekslot).append(abc);
+    abc = '<div class="hidden" data-tid="'+info.test_id+'" data-timeslot="'+info.timeslot+'" data-weekslot="'+info.weekslot+'" data-rep="'+info.rep+'" data-ampm="'+info.ampm+'">'+info.test_subject+'</div>';
+    $('td.slot[data-timeslot="'+info.timeslot+'"][data-weekslot="'+info.weekslot+'"]').append(abc);
   })
 
-  console.log(abc);
+  // 히든 끄집어 내기
+  $('[data-tid].testListBtn').click(function(){
+    var tid = $(this).attr('data-tid');
+    var trep = $(this).attr('data-rep');
+    var tampm = $(this).attr('data-ampm');
+    var ttimeslot = $(this).attr('data-timeslot');
+    var tweekslot = $(this).attr('data-weekslot');
+    // SAT2, AP data-tid, data-rep 가 같은것
+    var $tslot = $('td.slot [data-tid="'+tid+'"][data-rep="'+trep+'"]');
+    // SAT, ACT data-tid, data-ampm 이 같은것
+    var $tslot2 = $('td.slot [data-tid="'+tid+'"][data-ampm="'+tampm+'"]');
+    // TOEFL, 기타수업 data-tid, data-timeslot 이 같은것
+    var $tslot3 = $('td.slot [data-tid="'+tid+'"][data-timeslot="'+ttimeslot+'"]');
+    // 같은 timeslot, weekslot에 있는 것들 히든으로 변경
+    var $rtslot = $('td.slot [data-timeslot="'+ttimeslot+'"][data-weekslot="'+tweekslot+'"]');
 
-  // 해당 버튼 눌렀을 때, 과목들 hidden 된 것 해지
-  function select_subject(){
+    $tslot.toggleClass('hidden').toggleClass('nohidden');
+    $(this).toggleClass('active');
+    $tslot2.toggleClass('hidden').toggleClass('nohidden');
+    $(this).toggleClass('active');
+    $tslot3.toggleClass('hidden').toggleClass('nohidden');
+    $(this).toggleClass('active');
+
+    $rtslot.find('.nohidden').addClass('hidden');
+
+    jungbok();
+  });
+
+  // 중복 검사
+  function jungbok(){
     $.each(testInfo, function(index, info){
-      $('#test_'+info.test_id).click(function(){
-        $('#'+info.test_id+'_'+info.timeslot+'_'+info.weekslot).toggleClass('hidden');
-        $('#test_'+info.test_id).toggleClass('active');
-      })
+      $tparent = $('td.slot[data-timeslot="'+info.timeslot+'"][data-weekslot="'+info.weekslot+'"]')
+      if($tparent.children('.nohidden').length>1){
+        $tparent.css('background-color', '#F00');
+      } else {
+        $tparent.css('background-color', '#FFF');
+      }
     })
   }
+
+
+  // 하루치 수업 빼기
+  function bye(){
+    $('td.slot').click(function(){
+      $('td.slot [data-selected="true"]').toggleClass('hidden').toggleClass('nohidden');
+    });
+    jungbok();
+  }
+
+
+  // 메뉴 아코디언
+  $(".accordion_banner .accordion_title").click(function(){
+      if($(this).next("div").is(":visible")){
+      $(this).next("div").slideUp("fast");
+      } else {
+          $(".accordion_banner .accordion_sub").slideUp("fast");
+          $(this).next("div").slideToggle("fast");
+      }
+  });
+
+  // 자동 시간표 설정
+  $.each(studScore, function(index, score){
+    if(score.test_id == 1){
+      $('td.slot [data-tid="1"][data-ampm="am"]').removeClass('hidden').addClass('nohidden').attr('data-selected', 'true');
+      $('.testListBtn[data-tid="1"][data-ampm="am"]').addClass('active');
+    }
+    if(score.test_id == 2){
+      $('td.slot [data-tid="2"][data-ampm="am"]').removeClass('hidden').addClass('nohidden').attr('data-selected', 'true');
+      $('.testListBtn[data-tid="2"][data-ampm="am"]').addClass('active');
+    }
+    if(score.stud_grade == 9){
+      $('td.slot [data-tid="3"][data-timeslot="3"]').removeClass('hidden').addClass('nohidden').attr('data-selected', 'true');
+      $('.testListBtn[data-tid="3"][data-timeslot="3"]').addClass('active');
+    }
+    if(score.stud_grade == 9){
+      $('td.slot [data-tid="31"][data-timeslot="4"]').removeClass('hidden').addClass('nohidden').attr('data-selected', 'true');
+      $('.testListBtn[data-tid="31"][data-timeslot="4"]').addClass('active');
+    }
+  });
 
 </script>
