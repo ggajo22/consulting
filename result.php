@@ -3,12 +3,10 @@ require("view/header.php");
   $stud_id = $_GET['stud_id'];
   // 학생 정보 가져오기
   $sql = "SELECT * FROM student WHERE stud_id='".$stud_id."'";
-  //$sql = "SELECT * FROM student WHERE stud_id='133'";  $stud_id 가져와서 작업하다가, 일단 임의로 133으로 정함ㅇㅋ
   $result = mysqli_query($conn, $sql);
   $stud = mysqli_fetch_assoc($result);
 
   // 학생 점수 정보 가져오기
-  //$sql = "SELECT * FROM stud_score as ss LEFT JOIN test as t ON ss.test_id = t.test_id WHERE stud_id='".$stud_id."'";
   $sql = "SELECT * FROM stud_score as ss LEFT JOIN test as t ON ss.test_id = t.test_id LEFT JOIN student as s ON ss.stud_id = s.stud_id WHERE ss.stud_id='".$stud_id."'";
   $result = mysqli_query($conn, $sql);
   $studScore = array();
@@ -27,7 +25,6 @@ require("view/header.php");
 
 // 여기서 부터는 시간표용
   // 학생 수강 기간 정보 가져오기
-  // $sql = "SELECT * FROM stud_when WHERE stud_id='".$stud_id."'";
   $sql = "SELECT * FROM stud_when WHERE stud_id='".$stud_id."'";
   $result = mysqli_query($conn, $sql);
   $period = mysqli_fetch_assoc($result);
@@ -320,8 +317,10 @@ require("view/header.php");
   // 히든으로 집어 넣기
   $.each(testInfo, function(index, info){
     abc = '<div class="hidden" data-tid="'+info.test_id+'" data-timeslot="'+info.timeslot+'" data-weekslot="'+info.weekslot+'" data-rep="'+info.rep+'" data-ampm="'+info.ampm+'" onclick="bye();">'+info.test_subject+'</div>';
-    if(info.test_sort == 'SAT2' || info.test_sort == 'AP'){
-      abc = '<div class="hidden" data-tid="'+info.test_id+'" data-timeslot="'+info.timeslot+'" data-weekslot="'+info.weekslot+'" data-rep="'+info.rep+'" data-ampm="'+info.ampm+'" onclick="bye();">'+info.test_sort+' '+info.test_subject+'</div>';
+    if(info.test_sort == 'SAT2' || info.test_sort == 'AP'){ // .noremove, test_sort 추가
+      abc = '<div class="hidden noremove" data-tid="'+info.test_id+'" data-timeslot="'+info.timeslot+'" data-weekslot="'+info.weekslot+'" data-rep="'+info.rep+'" data-ampm="'+info.ampm+'" onclick="bye();">'+info.test_sort+' '+info.test_subject+'</div>';
+    } else if(info.test_subject == 'SAT' || info.test_subject == 'ACT'){ // .noremove 추가
+      abc = '<div class="hidden noremove" data-tid="'+info.test_id+'" data-timeslot="'+info.timeslot+'" data-weekslot="'+info.weekslot+'" data-rep="'+info.rep+'" data-ampm="'+info.ampm+'" onclick="bye();">'+info.test_subject+'</div>';
     }
     $('td.slot[data-timeslot="'+info.timeslot+'"][data-weekslot="'+info.weekslot+'"]').append(abc);
   })
@@ -340,14 +339,6 @@ require("view/header.php");
     // TOEFL, 기타수업 data-tid, data-timeslot 이 같은것
     var $tslot3 = $('td.slot [data-tid="'+tid+'"][data-timeslot="'+ttimeslot+'"]');
 
-    // 과목 선택시 시간표에 보이게 안보이게
-    function toggleNoIsHidden($target){
-      if($target.is('.hidden')){
-        $target.addClass('nohidden').toggleClass('hidden')
-      } else {
-        $target.removeClass('nohidden').toggleClass('hidden')
-      }
-    }
     toggleNoIsHidden($tslot);
     toggleNoIsHidden($tslot2);
     toggleNoIsHidden($tslot3);
@@ -371,7 +362,9 @@ require("view/header.php");
   // 하루치 수업 빼기
   function bye(){
     $('td.slot div.nohidden').click(function(){
-      $(this).addClass('hidden').removeClass('nohidden');
+      if(!$(this).is('.noremove')){
+        toggleNoIsHidden($(this));
+      }
     });
     jungbok();
   }
@@ -417,11 +410,16 @@ require("view/header.php");
     }
   });
 
+  // 수업 개수 세기
   for(i=0; i<4; i++){
     for(j=peri.start_week; j<parseInt(peri.start_week)+parseInt(peri.class_week); j++){
+      var price = 0;
       var $slot = $('td.slot[data-timeslot="'+(i+1)+'"][data-weekslot="'+j+'"]');
       var tia = $slot.children('.nohidden').attr('data-tid');
       console.log(tia);
+      if(tia == '1'){
+        price += 400000;
+      }
 /*
       var childLength = $slot.children('.nohidden').length
       console.log(childLength);
@@ -432,6 +430,15 @@ require("view/header.php");
 */
     }
   }
+  console.log(price);
 
+  // 과목 선택시 시간표에 보이게 안보이게
+  function toggleNoIsHidden($target){
+    if($target.is('.hidden')){
+      $target.addClass('nohidden').toggleClass('hidden');
+    } else if($target.is('.nohidden')){
+      $target.removeClass('nohidden').toggleClass('hidden');
+    }
+  }
 
 </script>
