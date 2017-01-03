@@ -48,12 +48,21 @@ require("view/header.php");
   }
 
   // TOEFL 정보 가져오기
-  $sql = "SELECT * FROM test_info as ti LEFT JOIN test as t ON ti.test_id = t.test_id WHERE test_subject='TOEFL'";
+  $sql = "SELECT * FROM test_info as ti LEFT JOIN test as t ON ti.test_id = t.test_id WHERE test_subject='toefl' GROUP BY timeslot";
   $result = mysqli_query($conn, $sql);
   $toeflInfo = array();
   while($row = mysqli_fetch_assoc($result))
   {
     $toeflInfo[] = $row;
+  }
+
+  // 문제풀이 정보 가져오기
+  $sql = "SELECT * FROM test_info as ti LEFT JOIN test as t ON ti.test_id = t.test_id WHERE test_subject='문제풀이' GROUP BY timeslot";
+  $result = mysqli_query($conn, $sql);
+  $munjeInfo = array();
+  while($row = mysqli_fetch_assoc($result))
+  {
+    $munjeInfo[] = $row;
   }
 
   // SAT2 리스트 가져오기
@@ -81,6 +90,15 @@ require("view/header.php");
   while($row = mysqli_fetch_assoc($result))
   {
     $testInfo[] = $row;
+  }
+
+  // 수강료 정보 불러오기
+  $sql = "SELECT * FROM interprep as i LEFT JOIN test as t ON i.test_id = t.test_id";
+  $result = mysqli_query($conn, $sql);
+  $interPrice = array();
+  while($row = mysqli_fetch_assoc($result))
+  {
+    $interPrice[] = $row;
   }
 ?>
 
@@ -181,46 +199,72 @@ require("view/header.php");
     <table id="timetable" class="table">
       <thead></thead>
       <tbody></tbody>
-      <tfoot></tfoot>
+      <tfoot><tr><tf><button type="button" id="price_cal">수강료 계산</button></tf></tr></tfoot>
     </table>
   </div>
   <div class="accordion_banner list-group col-xs-4">
-      <div class="accordion_title list-group-item">Main</div>
-      <div class="accordion_sub">
+    <div class="accordion_title list-group-item">Main</div>
+    <div class="accordion_sub">
+      <ul class="list-group">
+        <li class="list-group-item testListBtn" data-tid="1" data-ampm="am">SAT 오전</li>
+        <li class="list-group-item testListBtn" data-tid="1" data-ampm="pm">SAT 오후</li>
+        <li class="list-group-item testListBtn" data-tid="2" data-ampm="am">ACT 오전</li>
+        <li class="list-group-item testListBtn" data-tid="2" data-ampm="pm">ACT 오후</li>
+      </ul>
+    </div>
+    <div class="accordion_title list-group-item">SAT2 subject</div>
+    <div class="accordion_sub">
+      <ul class="list-group">
+        <?php
+          foreach($sat2List as $sl){
+          echo '<li data-tid="'.$sl['test_id'].'" data-rep="'.$sl['rep'].'" class="list-group-item testListBtn">'.$sl['rep'].'차 '.$sl['test_subject'].'</li>';
+          }
+        ?>
+      </ul>
+    </div>
+    <div class="accordion_title list-group-item">AP</div>
+    <div class="accordion_sub">
         <ul class="list-group">
-          <li class="list-group-item testListBtn" data-tid="1" data-ampm="am">SAT 오전</li>
-          <li class="list-group-item testListBtn" data-tid="1" data-ampm="pm">SAT 오후</li>
-          <li class="list-group-item testListBtn" data-tid="2" data-ampm="am">ACT 오전</li>
-          <li class="list-group-item testListBtn" data-tid="2" data-ampm="pm">ACT 오후</li>
-        </ul>
-      </div>
-      <div class="accordion_title list-group-item">SAT2 subject</div>
-      <div class="accordion_sub">
-        <ul id="check" class="list-group">
-          <?php
-            foreach($sat2List as $sl){
-              echo '<li data-tid="'.$sl['test_id'].'" data-rep="'.$sl['rep'].'" class="list-group-item testListBtn">'.$sl['rep'].'차 '.$sl['test_subject'].'</li>';
-            }
-          ?>
-        </ul>
-      </div>
-      <div class="accordion_title list-group-item">AP</div>
-      <div class="accordion_sub">
-        <ul id="check" class="list-group">
           <?php
             foreach($apList as $al){
-              echo '<li data-tid="'.$al['test_id'].'" data-rep="'.$al['rep'].'" class="list-group-item testListBtn">'.$al['rep'].'차 '.$al['test_subject'].'</li>';
+            echo '<li data-tid="'.$al['test_id'].'" data-rep="'.$al['rep'].'" class="list-group-item testListBtn">'.$al['rep'].'차 '.$al['test_subject'].'</li>';
             }
           ?>
         </ul>
       </div>
-      <div class="accordion_title list-group-item">실력up</div>
-      <div class="accordion_sub">
-        <ul id="check" class="list-group">
-          <li class="list-group-item testListBtn" data-tid="3" data-timeslot="3">3교시 TOEFL</li>
-          <li class="list-group-item testListBtn" data-tid="3" data-timeslot="4">4교시 TOEFL</li>
+    <div class="accordion_title list-group-item">실력up</div>
+    <div class="accordion_sub">
+      <div class="list-group-item accordion_title2">TOEFL</div>
+      <div class="accordion_sub2">
+        <ul class="list-group">
+          <?php
+          foreach($toeflInfo as $ti){
+            echo '<li class="list-group-item">'.$ti['timeslot'].'교시
+                  <div class="btn-group">';
+                  for($i=$period['start_week']; $i<$period['start_week']+$period['class_week']; $i++){
+                    echo '<button type="button" class="btn btn-default testListBtn2" data-tid="'.$ti['test_id'].'" data-timeslot="'.$ti['timeslot'].'" data-weekslot="'.$i.'">'.$i.'주차</button>';
+                  }
+                echo '</div></li>';
+          }
+          ?>
         </ul>
       </div>
+      <div class="list-group-item accordion_title2">문제풀이</div>
+      <div class="accordion_sub2">
+        <ul class="list-group">
+          <?php
+          foreach($munjeInfo as $mi){
+            echo '<li class="list-group-item">'.$mi['timeslot'].'교시
+                  <div class="btn-group">';
+                  for($i=$period['start_week']; $i<$period['start_week']+$period['class_week']; $i++){
+                    echo '<button type="button" class="btn btn-default testListBtn2" data-tid="'.$mi['test_id'].'" data-timeslot="'.$mi['timeslot'].'" data-weekslot="'.$i.'">'.$i.'주차</button>';
+                  }
+                echo '</div></li>';
+          }
+          ?>
+        </ul>
+      </div>
+    </div>
   </div>
 </div>
 <div>
@@ -316,11 +360,11 @@ require("view/header.php");
 
   // 히든으로 집어 넣기
   $.each(testInfo, function(index, info){
-    abc = '<div class="hidden" data-tid="'+info.test_id+'" data-timeslot="'+info.timeslot+'" data-weekslot="'+info.weekslot+'" data-rep="'+info.rep+'" data-ampm="'+info.ampm+'" onclick="bye();">'+info.test_subject+'</div>';
-    if(info.test_sort == 'SAT2' || info.test_sort == 'AP'){ // .noremove, test_sort 추가
-      abc = '<div class="hidden noremove" data-tid="'+info.test_id+'" data-timeslot="'+info.timeslot+'" data-weekslot="'+info.weekslot+'" data-rep="'+info.rep+'" data-ampm="'+info.ampm+'" onclick="bye();">'+info.test_sort+' '+info.test_subject+'</div>';
-    } else if(info.test_subject == 'SAT' || info.test_subject == 'ACT'){ // .noremove 추가
-      abc = '<div class="hidden noremove" data-tid="'+info.test_id+'" data-timeslot="'+info.timeslot+'" data-weekslot="'+info.weekslot+'" data-rep="'+info.rep+'" data-ampm="'+info.ampm+'" onclick="bye();">'+info.test_subject+'</div>';
+    abc = '<div class="hidden" data-tid="'+info.test_id+'" data-timeslot="'+info.timeslot+'" data-weekslot="'+info.weekslot+'" data-rep="'+info.rep+'" data-ampm="'+info.ampm+'">'+info.test_subject+'</div>';
+    if(info.test_sort == 'SAT2' || info.test_sort == 'AP'){ //  test_sort 추가
+      abc = '<div class="hidden" data-tid="'+info.test_id+'" data-timeslot="'+info.timeslot+'" data-weekslot="'+info.weekslot+'" data-rep="'+info.rep+'" data-ampm="'+info.ampm+'">'+info.test_sort+' '+info.test_subject+'</div>';
+    } else if(info.test_subject == 'SAT' || info.test_subject == 'ACT'){
+      abc = '<div class="hidden" data-tid="'+info.test_id+'" data-timeslot="'+info.timeslot+'" data-weekslot="'+info.weekslot+'" data-rep="'+info.rep+'" data-ampm="'+info.ampm+'">'+info.test_subject+'</div>';
     }
     $('td.slot[data-timeslot="'+info.timeslot+'"][data-weekslot="'+info.weekslot+'"]').append(abc);
   })
@@ -330,43 +374,38 @@ require("view/header.php");
     var tid = $(this).attr('data-tid');
     var trep = $(this).attr('data-rep');
     var tampm = $(this).attr('data-ampm');
-    var ttimeslot = $(this).attr('data-timeslot');
-    var tweekslot = $(this).attr('data-weekslot');
     // SAT2, AP data-tid, data-rep 가 같은것
     var $tslot = $('td.slot [data-tid="'+tid+'"][data-rep="'+trep+'"]');
     // SAT, ACT data-tid, data-ampm 이 같은것
     var $tslot2 = $('td.slot [data-tid="'+tid+'"][data-ampm="'+tampm+'"]');
-    // TOEFL, 기타수업 data-tid, data-timeslot 이 같은것
-    var $tslot3 = $('td.slot [data-tid="'+tid+'"][data-timeslot="'+ttimeslot+'"]');
 
     toggleNoIsHidden($tslot);
     toggleNoIsHidden($tslot2);
-    toggleNoIsHidden($tslot3);
     $(this).toggleClass('active');
-
     jungbok();
   });
-
+  // 버튼용 히든 끄집어 내기
+  $('[data-tid].testListBtn2').click(function(){
+    var tid = $(this).attr('data-tid');
+    var ttimeslot = $(this).attr('data-timeslot');
+    var tweekslot = $(this).attr('data-weekslot');
+    // TOEFL, 기타수업 data-tid, data-timeslo, data-weekslot 이 같은것
+    var $tslot3 = $('td.slot [data-tid="'+tid+'"][data-timeslot="'+ttimeslot+'"][data-weekslot="'+tweekslot+'"]');
+    toggleNoIsHidden($tslot3);
+    $(this).toggleClass('btn-primary');
+    $(this).toggleClass('btn-default');
+    jungbok();
+  });
   // 중복 검사
   function jungbok(){
     $.each(testInfo, function(index, info){
       $tparent = $('td.slot[data-timeslot="'+info.timeslot+'"][data-weekslot="'+info.weekslot+'"]')
       if($tparent.children('.nohidden').length>1){
-        $tparent.css('background-color', '#F00');
+        $tparent.addClass('jungbok');
       } else {
-        $tparent.css('background-color', '#FFF');
+        $tparent.removeClass('jungbok');
       }
     })
-  }
-
-  // 하루치 수업 빼기
-  function bye(){
-    $('td.slot div.nohidden').click(function(){
-      if(!$(this).is('.noremove')){
-        toggleNoIsHidden($(this));
-      }
-    });
-    jungbok();
   }
 
   // 메뉴 아코디언
@@ -379,8 +418,19 @@ require("view/header.php");
       }
   });
 
+  // Sub메뉴 아코디언
+  $(".accordion_title2").click(function(){
+      if($(this).next("div").is(":visible")){
+      $(this).next("div").slideUp("fast");
+      } else {
+          $(".accordion_sub2").slideUp("fast");
+          $(this).next("div").slideToggle("fast");
+      }
+  });
+
   // 자동 시간표 설정
   $.each(studScore, function(index, score){
+    console.log(score);
     if(score.test_id == 1){
       $('td.slot [data-tid="1"][data-ampm="am"]').removeClass('hidden').addClass('nohidden');
       $('.testListBtn[data-tid="1"][data-ampm="am"]').addClass('active');
@@ -391,46 +441,86 @@ require("view/header.php");
     }
     if(score.stud_grade == 9){
       $('td.slot [data-tid="3"][data-timeslot="3"]').removeClass('hidden').addClass('nohidden');
-      $('.testListBtn[data-tid="3"][data-timeslot="3"]').addClass('active');
+      $('.testListBtn2[data-tid="3"][data-timeslot="3"]').addClass('btn-primary').removeClass('btn-default');
       $('td.slot [data-tid="31"][data-timeslot="4"]').removeClass('hidden').addClass('nohidden');
-      $('.testListBtn[data-tid="31"][data-timeslot="4"]').addClass('active');
+      $('.testListBtn2[data-tid="31"][data-timeslot="4"]').addClass('btn-primary').removeClass('btn-default');
     }
-    if(score.stud_grade == 10){
+    if(score.stud_grade == 10 || score.stud_grade == 11){
       function sat2recommend(test_id){
         $('td.slot [data-tid="'+test_id+'"][data-rep="1"]').removeClass('hidden').addClass('nohidden');
         $('.testListBtn[data-tid="'+test_id+'"][data-rep="1"]').addClass('active');
       }
-      if(score.test_id !== 7){
-        sat2recommend(7);
-      } else if(score.test_id !== 4){
+      if(score.test_id == 7){
         sat2recommend(4);
-      } else if(score.test_id !== 8){
+      } else if (score.test_id !== 4){
+        sat2recommend(4);
+      } else if (score.test_id !== 8){
         sat2recommend(8);
       }
     }
   });
 
   // 수업 개수 세기
-  for(i=0; i<4; i++){
+/*  for(i=0; i<4; i++){
     for(j=peri.start_week; j<parseInt(peri.start_week)+parseInt(peri.class_week); j++){
-      var price = 0;
       var $slot = $('td.slot[data-timeslot="'+(i+1)+'"][data-weekslot="'+j+'"]');
-      var tia = $slot.children('.nohidden').attr('data-tid');
-      console.log(tia);
-      if(tia == '1'){
-        price += 400000;
-      }
-/*
       var childLength = $slot.children('.nohidden').length
-      console.log(childLength);
       if(childLength == 0){
-        $('td.slot [data-tid="31"][data-timeslot="'+(i+1)+'"][data-weekslot="'+j+'"]').removeClass('hidden').addClass('nohidden');
         $('td.slot [data-tid="3"][data-timeslot="'+(i+1)+'"][data-weekslot="'+j+'"]').removeClass('hidden').addClass('nohidden');
       }
-*/
     }
   }
-  console.log(price);
+*/
+  // 시간표대로 수강료 계산하기
+  var interPrice = <?=json_encode($interPrice);?>;
+  $('#price_cal').click(function(){
+    if(!$('#timetable').find('.jungbok').length){
+      $('#priceTable thead tr').empty();
+      $('#priceTable tbody tr').empty();
+      var totalPrice = 0;
+      var eachTestInfo = new Object(); // test_id 별로 통계를 구하기 위한 obj 생성
+      for(i=0; i<4; i++){
+        for(j=peri.start_week; j<parseInt(peri.start_week)+parseInt(peri.class_week); j++){
+          var $slot = $('td.slot[data-timeslot="'+(i+1)+'"][data-weekslot="'+j+'"]');
+          var tia = $slot.children('.nohidden').attr('data-tid');
+            $.each(interPrice, function(index, inter){
+              if(inter.test_id == 1 || inter.test_id == 2){
+                if(tia == inter.test_id){
+                  // test_id 별 object로 계산
+                  if(!eachTestInfo[inter.test_id]) eachTestInfo[inter.test_id] = {};
+                  if(!eachTestInfo[inter.test_id]["totalPrice"]) eachTestInfo[inter.test_id]["totalPrice"] = 0;
+                  eachTestInfo[inter.test_id]["totalPrice"] += parseInt(inter.inter_price) / 2;
+                  eachTestInfo[inter.test_id]["test_subject"] = inter.test_subject;
+                  // 총합 계산
+                  totalPrice += parseInt(inter.inter_price) / 2;
+                }
+              } else {
+                if(tia == inter.test_id){
+                  if(!eachTestInfo[inter.test_id]) eachTestInfo[inter.test_id] = {};
+                  if(!eachTestInfo[inter.test_id]["totalPrice"]) eachTestInfo[inter.test_id]["totalPrice"] = 0;
+                  eachTestInfo[inter.test_id]["totalPrice"] += parseInt(inter.inter_price);
+                  eachTestInfo[inter.test_id]["test_subject"] = inter.test_subject;
+                  totalPrice += parseInt(inter.inter_price);
+                }
+              }
+            });
+        }
+      }
+      var testStr = '<tr>'; // thead에 들어갈 string
+      var priceStr = '<tr>'; // tbody에 들어갈 string
+      $.each(eachTestInfo, function(index, testInfo){
+        testStr += '<th>'+testInfo.test_subject+'</th>';
+        priceStr += '<td>'+number_format(testInfo.totalPrice)+'</td>';
+      })
+      testStr += '<th>합계</th></tr>';
+      priceStr += '<td>'+number_format(totalPrice)+'</td></tr>';
+      $('#priceTable thead').append(testStr);
+      $('#priceTable tbody').append(priceStr);
+    } else {
+      alert('중복수강되어 수강료 계산을 할 수가 없습니다');
+    }
+
+  })
 
   // 과목 선택시 시간표에 보이게 안보이게
   function toggleNoIsHidden($target){
@@ -439,6 +529,33 @@ require("view/header.php");
     } else if($target.is('.nohidden')){
       $target.removeClass('nohidden').toggleClass('hidden');
     }
+  }
+
+  // 숫자 형식 변형
+  function number_format(data){
+   var tmp = '';
+   var number = '';
+   var cutlen = 3;
+   var comma = ',';
+   var i;
+   var data = String(data);
+   len = data.length;
+   mod = (len % cutlen);
+   k = cutlen - mod;
+   for (i=0; i<data.length; i++)
+   {
+       number = number + data.charAt(i);
+       if (i < data.length - 1)
+       {
+           k++;
+           if ((k % cutlen) == 0)
+           {
+               number = number + comma;
+               k = 0;
+           }
+       }
+   }
+   return number;
   }
 
 </script>

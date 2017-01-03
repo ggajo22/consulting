@@ -83,6 +83,7 @@
 <script type="text/javascript">
   function makeArray(form){
     var _posData = parseMacro($('.test_object',form),'[name]');
+    alert(_posData);
     $.post('add_process/stud_score_add.php', {data:_posData}, function(){
     })
     return false;
@@ -90,7 +91,8 @@
 
   $('#submit_btn').click(function(){
     $(location).attr('href', 'http://localhost/consulting/period.php');
-  })
+  });
+
 
 
   $('#sat_btn').click(function(){

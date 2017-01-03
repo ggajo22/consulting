@@ -18,8 +18,17 @@
     .accordion_sub {
       display : none;
     }
+    .accordion_sub2 {
+      display : none;
+    }
     .accordion_title {
       background-color : #FAF4C0;
+    }
+    .accordion_title2 {
+      background-color : #D9D6FF;
+    }
+    .jungbok {
+      background-color : #FF7E7E;
     }
     </style>
     <script src="./res/js/jquery-1.11.3.min.js"></script>
