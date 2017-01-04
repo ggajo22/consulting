@@ -428,7 +428,23 @@ require("view/header.php");
       }
   });
 
-  // 자동 시간표 설정
+// 자동 시간표 설정
+  // 일정으로 차수 구분
+  var rep = new Array();
+  console.log(peri);
+  console.log(peri['start_week']);
+  console.log(parseInt(peri['start_week'])+parseInt(peri['class_week']));
+  if(parseInt(peri['start_week'])<6 && parseInt(peri['start_week'])+parseInt(peri['class_week'])>9){
+    rep.push('1');
+  }
+  if(parseInt(peri['start_week'])<10 && parseInt(peri['start_week'])+parseInt(peri['class_week'])>13){
+    rep.push('2');
+  }
+  if(parseInt(peri['start_week'])<14 && parseInt(peri['start_week'])+parseInt(peri['class_week'])>17){
+    rep.push('3');
+  }
+  console.log(rep);
+
   var sat2List = <?=json_encode($sat2List);?>;
   // sat2List test_id 배열에 넣기
   var _sat2 = new Array();
@@ -444,7 +460,6 @@ require("view/header.php");
   })
 
   $.each(studScore, function(index, score){
-    console.log(score);
     if(score.test_id == 1){
       $('td.slot [data-tid="1"][data-ampm="am"]').removeClass('hidden').addClass('nohidden');
       $('.testListBtn[data-tid="1"][data-ampm="am"]').addClass('active');
@@ -460,22 +475,32 @@ require("view/header.php");
       $('.testListBtn2[data-tid="31"][data-timeslot="4"]').addClass('btn-primary').removeClass('btn-default');
     }
     if(score.stud_grade == 10 || score.stud_grade == 11){
-      function sat2recommend(test_id){
-        $('td.slot [data-tid="'+test_id+'"][data-rep="1"]').removeClass('hidden').addClass('nohidden');
-        $('.testListBtn[data-tid="'+test_id+'"][data-rep="1"]').addClass('active');
+      if(rep.length>0){
+        var $sat2 = $('td.slot [data-tid="'+_sat2[0]+'"][data-rep="'+rep[0]+'"]');
+        $sat2.parent().children('.nohidden').addClass('hidden').removeClass('nohidden');
+        $sat2.removeClass('hidden').addClass('nohidden');
+        $('.testListBtn[data-tid="'+_sat2[0]+'"][data-rep="'+rep[0]+'"]').addClass('active');
       }
-      // 남은 과목중 우선순위 가장 높은 과목
-      sat2recommend(_sat2[0]);
     }
   });
 
   // 빈칸에 수업 넣기
+
   for(i=0; i<4; i++){
     for(j=peri.start_week; j<parseInt(peri.start_week)+parseInt(peri.class_week); j++){
-      var $slot = $('tr.slotRow[data-timeslot="'+(i+1)+'"] td.slot[data-timeslot="'+(i+1)+'"][data-weekslot="'+j+'"]');
-      var childLength = $slot.children('.nohidden').length
+      var $slot = $('tr.slotRow[data-timeslot="'+(i+1)+'"]');
+      var childLength = $slot.children('td.slot').children('.nohidden').length
       if(childLength == 0){
-        $('tr.slotRow[data-timeslot="'+(i+1)+'"] td.slot [data-tid="31"][data-timeslot="'+(i+1)+'"][data-weekslot="'+j+'"]').removeClass('hidden').addClass('nohidden');
+        for(j=peri.start_week; j<parseInt(peri.start_week)+parseInt(peri.class_week); j++){
+          $('tr.slotRow[data-timeslot="'+(i+1)+'"] td.slot [data-tid="31"][data-timeslot="'+(i+1)+'"][data-weekslot="'+j+'"]').removeClass('hidden').addClass('nohidden');
+          $('.testListBtn2[data-tid="31"][data-timeslot="'+(i+1)+'"][data-weekslot="'+j+'"]').addClass('btn-primary').removeClass('btn-default');
+        }
+      }
+      $slot = $('tr.slotRow[data-timeslot="'+(i+1)+'"] td.slot[data-timeslot="'+(i+1)+'"][data-weekslot="'+j+'"]');
+      childLength = $slot.children('.nohidden').length
+      if(childLength == 0){
+        $('tr.slotRow[data-timeslot="'+(i+1)+'"] td.slot [data-tid="3"][data-timeslot="'+(i+1)+'"][data-weekslot="'+j+'"]').removeClass('hidden').addClass('nohidden');
+        $('.testListBtn2[data-tid="3"][data-timeslot="'+(i+1)+'"][data-weekslot="'+j+'"]').addClass('btn-primary').removeClass('btn-default');
       }
     }
   }
