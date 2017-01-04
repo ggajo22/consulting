@@ -83,7 +83,6 @@
 <script type="text/javascript">
   function makeArray(form){
     var _posData = parseMacro($('.test_object',form),'[name]');
-    alert(_posData);
     $.post('add_process/stud_score_add.php', {data:_posData}, function(){
     })
     return false;
@@ -92,8 +91,6 @@
   $('#submit_btn').click(function(){
     $(location).attr('href', 'http://localhost/consulting/period.php');
   });
-
-
 
   $('#sat_btn').click(function(){
     $('#sat_score_input').removeClass('hidden').addClass('test_object');
@@ -107,12 +104,14 @@
     for(i=0; i<$('#sat2_no').val(); i++){
       $('#sat2_score_input').append($('.sat2_skeleton:first').clone(true).removeClass('hidden').removeClass('sat2_skeleton').addClass('test_object').attr('data-sat2-division', 'sat2_'+i));
     }
+    /*
     for(i=0; i<$('#sat2_no').val(); i++){
       $('[data-sat2-division="sat2_'+i+'"] .sat2_change').change(function(){
         alert('성공');
         $('[data-sat2-division="sat2_'+i+'"] .sat2_subject').val('1');
       })
     }
+    */
   });
 
   $('#ap_no').change(function(){

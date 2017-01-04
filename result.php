@@ -66,7 +66,7 @@ require("view/header.php");
   }
 
   // SAT2 리스트 가져오기
-  $sql = "SELECT * FROM test_info as ti LEFT JOIN test as t ON ti.test_id = t.test_id WHERE test_sort='SAT2' GROUP BY rep, test_subject;";
+  $sql = "SELECT * FROM test_info as ti LEFT JOIN test as t ON ti.test_id = t.test_id WHERE test_sort='SAT2' GROUP BY test_subject ORDER BY priority ASC";
   $result = mysqli_query($conn, $sql);
   $sat2List = array();
   while($row = mysqli_fetch_assoc($result))
@@ -344,7 +344,7 @@ require("view/header.php");
 
   var tbStr = '';
   for(i=0; i<4; i++){
-    tbStr += '<tr><td>'+(i+1)+'교시</td>';
+    tbStr += '<tr class="slotRow" data-timeslot="'+(i+1)+'"><td>'+(i+1)+'교시</td>';
     for(j=peri.start_week; j<parseInt(peri.start_week)+parseInt(peri.class_week); j++){
       tbStr +='<td class="slot" data-timeslot="'+(i+1)+'" data-weekslot="'+j+'"></td>';
     }
@@ -429,6 +429,20 @@ require("view/header.php");
   });
 
   // 자동 시간표 설정
+  var sat2List = <?=json_encode($sat2List);?>;
+  // sat2List test_id 배열에 넣기
+  var _sat2 = new Array();
+  // 배열에서 학생이 들었던 수업은 splice
+  $.each(sat2List, function(index, sat2){
+    _sat2.push(sat2.test_id);
+  });
+  $.each(studScore, function(index, score){
+    var _index = _sat2.indexOf(score.test_id);
+    if(_index >= 0){
+      _sat2.splice(_index, 1);
+    }
+  })
+
   $.each(studScore, function(index, score){
     console.log(score);
     if(score.test_id == 1){
@@ -450,27 +464,22 @@ require("view/header.php");
         $('td.slot [data-tid="'+test_id+'"][data-rep="1"]').removeClass('hidden').addClass('nohidden');
         $('.testListBtn[data-tid="'+test_id+'"][data-rep="1"]').addClass('active');
       }
-      if(score.test_id == 7){
-        sat2recommend(4);
-      } else if (score.test_id !== 4){
-        sat2recommend(4);
-      } else if (score.test_id !== 8){
-        sat2recommend(8);
-      }
+      // 남은 과목중 우선순위 가장 높은 과목
+      sat2recommend(_sat2[0]);
     }
   });
 
-  // 수업 개수 세기
-/*  for(i=0; i<4; i++){
+  // 빈칸에 수업 넣기
+  for(i=0; i<4; i++){
     for(j=peri.start_week; j<parseInt(peri.start_week)+parseInt(peri.class_week); j++){
-      var $slot = $('td.slot[data-timeslot="'+(i+1)+'"][data-weekslot="'+j+'"]');
+      var $slot = $('tr.slotRow[data-timeslot="'+(i+1)+'"] td.slot[data-timeslot="'+(i+1)+'"][data-weekslot="'+j+'"]');
       var childLength = $slot.children('.nohidden').length
       if(childLength == 0){
-        $('td.slot [data-tid="3"][data-timeslot="'+(i+1)+'"][data-weekslot="'+j+'"]').removeClass('hidden').addClass('nohidden');
+        $('tr.slotRow[data-timeslot="'+(i+1)+'"] td.slot [data-tid="31"][data-timeslot="'+(i+1)+'"][data-weekslot="'+j+'"]').removeClass('hidden').addClass('nohidden');
       }
     }
   }
-*/
+
   // 시간표대로 수강료 계산하기
   var interPrice = <?=json_encode($interPrice);?>;
   $('#price_cal').click(function(){
@@ -481,7 +490,7 @@ require("view/header.php");
       var eachTestInfo = new Object(); // test_id 별로 통계를 구하기 위한 obj 생성
       for(i=0; i<4; i++){
         for(j=peri.start_week; j<parseInt(peri.start_week)+parseInt(peri.class_week); j++){
-          var $slot = $('td.slot[data-timeslot="'+(i+1)+'"][data-weekslot="'+j+'"]');
+          var $slot = $('tr.slotRow[data-timeslot="'+(i+1)+'"] td.slot[data-timeslot="'+(i+1)+'"][data-weekslot="'+j+'"]');
           var tia = $slot.children('.nohidden').attr('data-tid');
             $.each(interPrice, function(index, inter){
               if(inter.test_id == 1 || inter.test_id == 2){
