@@ -30,6 +30,9 @@
     .jungbok {
       background-color : #FF7E7E;
     }
+    ul li{
+      list-style : none;
+    }
     </style>
     <script src="./res/js/jquery-1.11.3.min.js"></script>
     <script src="./res/jquery-ui/jquery-ui.min.js"></script>
@@ -40,6 +43,8 @@
     <script src="./res/js/mgImg.js"></script>
     <script src="./res/js/string.js"></script>
     <script src="./res/js/common.js"></script>
+
+    <script src="./res/js/jquery.checkbox.min.js"></script>
 
   </head>
   <body>
