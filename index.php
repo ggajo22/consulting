@@ -30,12 +30,12 @@ h1 {color:#A50000;}
   </div>
 </div>
 <script>
-  $('#index_startBtn').click(function(){
+  $('#index_startBtn img').click(function(){
     $(location).attr('href', 'http://localhost/consulting/input.php');
   })
-  $('#index_startBtn').hover(function(){
-    $('#index_startBtn img').attr('src', 'res/img/index_startBtn_h.png');
+  $('#index_startBtn img').hover(function(){
+    $(this).attr('src', 'res/img/index_startBtn_h.png');
   }, function(){
-    $('#index_startBtn img').attr('src', 'res/img/index_startBtn.png');
+    $(this).attr('src', 'res/img/index_startBtn.png');
   })
 </script>
