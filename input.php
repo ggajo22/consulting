@@ -100,6 +100,9 @@
 
   #ap_score_input{position:relative; left:250px; top:52px; width: 600px; height:57px;}
 
+  .q5 .q{position: relative; left: -50px; top:50px;}
+  .toefl_wrap {width: 1100px; height: 118px; position: relative; left: -30px; top: 120px; background:url(res/img/q5_a.png) no-repeat; background-size:100%}
+
   .talkbubble{
     border : none;
     width: 220px;
@@ -235,6 +238,21 @@
               <input type="text" class="form-control talkbubble test_score clsChk7" data-checked="true" name="test_score" placeholder="AP 점수 입력">
             </div>
           </li>
+          <li class="q5">
+            <p class="q_g"><img src="res/img/q5_g.png" alt=""></p>
+            <p class="q"><img src="res/img/q5.png" /></p>
+            <div id="toefl_input" class="form-group test_object">
+              <input type="hidden" name="test_id" value="3">
+              <input type="text" class="form-control hidden" id="toefl_score" name="test_score">
+              <div class="toefl_wrap">
+                <div class="t_option t1 clsChk8" data-toefl="110"></div>
+                <div class="t_option t2 clsChk8" data-toefl="100"></div>
+                <div class="t_option t3 clsChk8" data-toefl="90"></div>
+                <div class="t_option t4 clsChk8" data-toefl="80"></div>
+                <div class="t_option t5 clsChk8" data-toefl="0"></div>
+              </div>
+            </div>
+          </li>
         </ul>
         <!--<input type='submit' id='btn_submit' class='hidden'/>-->
         <div id="btn_next"></div>
@@ -301,6 +319,12 @@
     }
   })
 
+  var $toefl_score = $('#toefl_score');
+  var $toefl_wrap = $('.toefl_wrap');
+  $toefl_wrap.on('click', '.t_option', function(){
+    setSelectItem($(this), $toefl_score, 't-checked', 'toefl');
+  })
+  
   // 점수 선택 시 처리
   function setSelectItem($item, $valueSelector, className, dataName){
     // 기존 선택 아이템이 있는 경우 선택 효과 제거
@@ -315,97 +339,10 @@
     $valueSelector.attr('value', _data);
   }
 
-
-// 슬라이더를 위한것
-
-  var _slideIndex = 0;
-  function slide(){
-      $('.image_container').stop().animate( { left: -1120 * _slideIndex}, 1000 );
-  }
-
-  $('#btn_next').click(function(e){
-
-    var tFlag = false;
-    var tAlert = "";
-    console.log(_slideIndex);
-
-/*
-    $('.gpa_wrap').each(function(){
-      if($(this).children('.t-checked').length == 0){
-        tFlag = true;
-        tIndex = 0;
-        return
-      }
-    })
-    $('.test_wrap').each(function(){
-      if($(this).children('.test_sat-checked').length == 0 && $('.test_wrap').children('.test_act-checked').length == 0){
-        tFlag = true;
-        tIndex = 1;
-        return
-      }
-    })
-*/
-/*
-    if($('.gpa_wrap').children('.t-checked').length == 0){
-      alert('GPA를 선택해주세요');
-      return;
-    } else if ($('.test_wrap').children('.test_sat-checked').length == 0 && $('.test_wrap').children('.test_act-checked').length == 0){
-      alert('시험을 선택해주세요');
-      return;
-    }
-*/
-
-
-      $(".clsChk" + (_slideIndex + 1)).each(function() {
-          if ($(this).attr("data-checked")) {
-              tFlag = true;
-          }
-      });
-
-      if (!tFlag) {
-          switch(_slideIndex) {
-              case 0:
-                  tAlert = "GPA를 선택해 주세요.";
-                  break;
-              case 1:
-                  tAlert = "시험종류를 선택해 주세요.";
-                  break;
-              case 2:
-                  tAlert = "시험점수를 선택해 주세요.";
-                  break;
-              case 3:
-                  tAlert = "가지고 있는 SAT2 성적의 개수를 선택해 주세요.";
-                  break;
-              case 5:
-                  tAlert = "가지고 있는 AP 성적의 개수를 선택해 주세요.";
-                  break;
-          }
-
-          alert(tAlert);
-          return;
-      }
-
-      if( _slideIndex == $('.image_container li').length-1 ) {
-          makeArray($(this).parents('form'));
-          //$('#btn_submit').click();
-          return false;
-      }
-
-      _slideIndex++;
-      slide();
-      return false;
-  });
-
-  $('#btn_prev').click(function(e){
-    _slideIndex--;
-    slide();
-    return false;
-  })
-// 슬라이더를 위한것
-
-
+  // 데이터 배열로 변환하여 전달
   function makeArray(form){
     var _posData = parseMacro($('.test_object',form),'[name]');
+
     $.post('add_process/stud_score_add.php', {data:_posData}, function(){
       location.href = 'period.php';
     })
@@ -427,6 +364,72 @@
       $('#sat_score_input').addClass('hidden').removeClass('test_object');
     });
   }
+
+
+// 슬라이더를 위한것
+
+  var _slideIndex = 0;
+  function slide(){
+      $('.image_container').stop().animate( { left: -1120 * _slideIndex}, 1000 );
+  }
+
+  $('#btn_next').click(function(e){
+
+    var tFlag = false;
+    var tAlert = "";
+
+    $(".clsChk" + (_slideIndex + 1)).each(function() {
+        if ($(this).attr("data-checked")) {
+            tFlag = true;
+        }
+    });
+
+    if (!tFlag) {
+        switch(_slideIndex) {
+            case 0:
+                tAlert = "GPA를 선택해 주세요.";
+                break;
+            case 1:
+                tAlert = "시험종류를 선택해 주세요.";
+                break;
+            case 2:
+                tAlert = "시험점수를 선택해 주세요.";
+                break;
+            case 3:
+                tAlert = "가지고 있는 SAT2 성적의 개수를 선택해 주세요.";
+                break;
+            case 5:
+                tAlert = "가지고 있는 AP 성적의 개수를 선택해 주세요.";
+                break;
+            case 7:
+                tAlert = "TOEFL 점수를 선택해 주세요."
+                break;
+        }
+
+        alert(tAlert);
+        return;
+    }
+
+    if( _slideIndex == $('.image_container li').length-1 ) {
+        makeArray($(this).parents('form'));
+        //$('#btn_submit').click();
+        return false;
+    }
+
+    _slideIndex++;
+    slide();
+    return false;
+  });
+
+  $('#btn_prev').click(function(e){
+    _slideIndex--;
+    slide();
+    return false;
+  })
+// 슬라이더를 위한것
+
+
+
 
 </script>
  </body>
