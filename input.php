@@ -58,7 +58,7 @@
   .test_wrap{width:200px; height:200px;}
   .test_option{width:200px; height:200px;}
 
-  .test_sat{position: relative; left: 100px;  background:url(res/img/q2_a1.png) no-repeat; background-size:100%}
+  .test_sat{position: relative; left: 100px; background:url(res/img/q2_a1.png) no-repeat; background-size:100%}
   .test_act{position: relative; left: 300px; background:url(res/img/q2_a2.png) no-repeat; background-size:100%}
 
 
