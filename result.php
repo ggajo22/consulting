@@ -1,4 +1,5 @@
 <?php
+
 require("view/header.php");
   $stud_id = $_GET['stud_id'];
   // 학생 정보 가져오기
@@ -326,7 +327,13 @@ require("view/header.php");
   }
 
   // 학생 상태보다 9~12 단계 높은 학교
-  for(i=9; i<12; i++){
+  var _i = 0;
+  if(dif.length<9){
+    _i = dif.length - 3;
+  } else {
+    _i = 9;
+  }
+  for(i=0; i<3; i++){
     var mashedObj = mashSkeleton(mus, uni[dif[i].idx], true);
     $('#dream_uni').append(mashedObj);
   }

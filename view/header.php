@@ -1,4 +1,7 @@
 <?php
+  session_save_path('./session');
+  $_session['title'] = '용팀힘내';
+
   require("config/db_config.php");
 ?>
 <!DOCTYPE html>

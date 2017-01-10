@@ -351,7 +351,7 @@
 
   // 원하는 대학 list post로 넘기기 post는 next 버튼 _slideIndex == 0 에 설정
   function uniArraySubmit(){
-    $.post('add_process/wish_add.php', {data:uniArray}, function(){
+    $.post('add_process/wish_add_session.php', {data:uniArray}, function(){
     })
   }
 
@@ -436,8 +436,8 @@
   function makeArray(form){
     var _posData = parseMacro($('.test_object',form),'[name]');
 
-    $.post('add_process/stud_score_add.php', {data:_posData}, function(){
-      location.href = 'period.php';
+    $.post('add_process/stud_score_add_session.php', {data:_posData}, function(){
+      location.href = 'result_session.php';
     })
     return false;
   }
@@ -476,7 +476,7 @@
             tFlag = true;
         }
     });
-
+/*
     if (!tFlag) {
         switch(_slideIndex) {
             case 0:
@@ -505,7 +505,7 @@
         alert(tAlert);
         return;
     }
-
+*/
     if(_slideIndex == 0){
       uniArraySubmit();
     }

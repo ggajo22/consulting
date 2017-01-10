@@ -1,4 +1,7 @@
 <?php
+  $_SESSION['student'] = $_POST;
+
+/*
     require("../config/db_config.php");
   // 학생 정보 입력
   $sql="INSERT INTO student (stud_name, stud_name_eng, stud_phone_number, stud_email, stud_school, stud_grade) VALUES('".$_POST['stud_name']."', '".$_POST['stud_name_eng']."', '".$_POST['stud_phone_number']."', '".$_POST['stud_email']."', '".$_POST['stud_school']."', '".$_POST['stud_grade']."')";
@@ -17,6 +20,7 @@
   $sql = "UPDATE stud_when SET stud_id='".$stud_id."' WHERE stud_id='1'";
   $result = mysqli_query($conn, $sql);
 
-  $finalResult =array('msg'=>'ok','content'=>array('lastStudId'=>$stud_id));
+  $finalResult =array('msg'=>'ok','content'=>array('lastStudId'=>var_dump($_SESSION['student']['stud_name'])));
   echo json_encode($finalResult); //이내용이 proc/dao_result.php에 써짐.
+*/
 ?>
