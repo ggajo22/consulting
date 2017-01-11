@@ -78,14 +78,38 @@
   }
 
  ?>
+<style>
+  .accordion_sub {
+    display : none;
+  }
+  .accordion_sub2 {
+    display : none;
+  }
+  .accordion_title {
+    background-color : #FAF4C0;
+  }
+  .accordion_title2 {
+    background-color : #D9D6FF;
+  }
+  .jungbok {
+    background-color : #FF7E7E;
+  }
 
-<div class="row">
+  .ytable{position:relative; font-size:1.2em; border:1px solid #C00 !important;}
+  .ytable th{padding:10px; text-align:center; background-color:#C00; color:#FFF;}
+  .ytable tbody tr td{border-top:1px solid #C00; border-left:0.2px solid #EAEAEA; border-right:0.2px solid #EAEAEA; height:70px; vertical-align:middle;}
+  .ref{background-color:#CC3D3D; color:#FFF;}
+
+</style>
+
+
+<div class="row padding30 container-fluid">
   <div class="col-xs-8">
-   <table id="timetable" class="table">
+   <table id="timetable" class="table text-center table-hover ytable">
      <thead></thead>
      <tbody></tbody>
-     <tfoot><tr><tf><button type="button" id="price_cal">수강료 계산</button></tf></tr></tfoot>
    </table>
+   <button type="button" id="price_cal" class="btn btn-default">수강료 계산</button>
   </div>
   <div class="accordion_banner list-group col-xs-4">
    <div class="accordion_title list-group-item">Main</div>
@@ -152,11 +176,12 @@
    </div>
   </div>
 </div>
-<div>
-<table class='table' id='priceTable'>
- <thead></thead>
- <tbody></tbody>
-</table>
+<div class="container-fluid">
+  <table class='table text-center ytable' id='priceTable'>
+   <thead></thead>
+   <tbody></tbody>
+  </table>
+  <h1 class="ref hidden jarang" style="width:1020px;">하지만!!! 인터프렙에는 All Pass (500만원) 시스템이 있습니다!!!!</h1>
 </div>
 
 <script>
@@ -170,8 +195,8 @@ for(i=peri.start_week; i<parseInt(peri.start_week)+parseInt(peri.class_week); i+
 $('#timetable thead').append(periStr);
 
 var tbStr = '';
-for(i=0; i<4; i++){
-  tbStr += '<tr class="slotRow" data-timeslot="'+(i+1)+'"><td>'+(i+1)+'교시</td>';
+for(i=0; i<5; i++){
+  tbStr += '<tr class="slotRow" data-timeslot="'+(i+1)+'"><td class="ref">'+(i+1)+'교시</td>';
   for(j=peri.start_week; j<parseInt(peri.start_week)+parseInt(peri.class_week); j++){
     tbStr +='<td class="slot" data-timeslot="'+(i+1)+'" data-weekslot="'+j+'"></td>';
   }
@@ -288,13 +313,13 @@ $(".accordion_title2").click(function(){
   // 학생이 SAT or ACT 어떤거 선택했는지
   $.each(studScore, function(index, score){
     if(score.test_id == 1){
-      $('td.slot [data-tid="1"][data-ampm="am"]').removeClass('hidden').addClass('nohidden');
-      $('.testListBtn[data-tid="1"][data-ampm="am"]').addClass('active');
-    }
+        $('td.slot [data-tid="1"][data-ampm="am"]').removeClass('hidden').addClass('nohidden');
+        $('.testListBtn[data-tid="1"][data-ampm="am"]').addClass('active');
+      }
     if(score.test_id == 2){
       $('td.slot [data-tid="2"][data-ampm="am"]').removeClass('hidden').addClass('nohidden');
       $('.testListBtn[data-tid="2"][data-ampm="am"]').addClass('active');
-    }
+      }
   });
 
   // 학생 학년에 따라서 어떻게 할지
@@ -310,11 +335,14 @@ $(".accordion_title2").click(function(){
       $sat2.parent().children('.nohidden').addClass('hidden').removeClass('nohidden');
       $sat2.removeClass('hidden').addClass('nohidden');
       $('.testListBtn[data-tid="'+_sat2[0]+'"][data-rep="'+rep[0]+'"]').addClass('active');
+    } else {
+      $('td.slot [data-tid="3"][data-timeslot="3"]').removeClass('hidden').addClass('nohidden');
+      $('.testListBtn2[data-tid="3"][data-timeslot="3"]').addClass('btn-primary').removeClass('btn-default');
     }
   }
 
   // 빈칸에 수업 넣기
-  for(i=0; i<4; i++){
+  for(i=0; i<5; i++){
     for(j=peri.start_week; j<parseInt(peri.start_week)+parseInt(peri.class_week); j++){
       var $slot = $('tr.slotRow[data-timeslot="'+(i+1)+'"]');
       var childLength = $slot.children('td.slot').children('.nohidden').length
@@ -337,11 +365,11 @@ $(".accordion_title2").click(function(){
   var interPrice = <?=json_encode($interPrice);?>;
   $('#price_cal').click(function(){
     if(!$('#timetable').find('.jungbok').length){
-      $('#priceTable thead tr').empty();
-      $('#priceTable tbody tr').empty();
+      $('#priceTable thead').empty();
+      $('#priceTable tbody').empty();
       var totalPrice = 0;
       var eachTestInfo = new Object(); // test_id 별로 통계를 구하기 위한 obj 생성
-      for(i=0; i<4; i++){
+      for(i=0; i<5; i++){
         for(j=peri.start_week; j<parseInt(peri.start_week)+parseInt(peri.class_week); j++){
           var $slot = $('tr.slotRow[data-timeslot="'+(i+1)+'"] td.slot[data-timeslot="'+(i+1)+'"][data-weekslot="'+j+'"]');
           var tia = $slot.children('.nohidden').attr('data-tid');
@@ -351,7 +379,9 @@ $(".accordion_title2").click(function(){
                   // test_id 별 object로 계산
                   if(!eachTestInfo[inter.test_id]) eachTestInfo[inter.test_id] = {};
                   if(!eachTestInfo[inter.test_id]["totalPrice"]) eachTestInfo[inter.test_id]["totalPrice"] = 0;
+                  if(!eachTestInfo[inter.test_id]["count"]) eachTestInfo[inter.test_id]["count"] = 0;
                   eachTestInfo[inter.test_id]["totalPrice"] += parseInt(inter.inter_price) / 2;
+                  eachTestInfo[inter.test_id]["count"] += 1 / 2;
                   eachTestInfo[inter.test_id]["test_subject"] = inter.test_subject;
                   // 총합 계산
                   totalPrice += parseInt(inter.inter_price) / 2;
@@ -360,7 +390,9 @@ $(".accordion_title2").click(function(){
                 if(tia == inter.test_id){
                   if(!eachTestInfo[inter.test_id]) eachTestInfo[inter.test_id] = {};
                   if(!eachTestInfo[inter.test_id]["totalPrice"]) eachTestInfo[inter.test_id]["totalPrice"] = 0;
+                  if(!eachTestInfo[inter.test_id]["count"]) eachTestInfo[inter.test_id]["count"] = 0;
                   eachTestInfo[inter.test_id]["totalPrice"] += parseInt(inter.inter_price);
+                  eachTestInfo[inter.test_id]["count"] += 1;
                   eachTestInfo[inter.test_id]["test_subject"] = inter.test_subject;
                   totalPrice += parseInt(inter.inter_price);
                 }
@@ -370,18 +402,21 @@ $(".accordion_title2").click(function(){
       }
       var testStr = '<tr>'; // thead에 들어갈 string
       var priceStr = '<tr>'; // tbody에 들어갈 string
+
       $.each(eachTestInfo, function(index, testInfo){
-        testStr += '<th>'+testInfo.test_subject+'</th>';
+        testStr += '<th>'+testInfo.test_subject+'('+testInfo.count+'주)</th>';
         priceStr += '<td>'+number_format(testInfo.totalPrice)+'</td>';
       })
       testStr += '<th>합계</th></tr>';
-      priceStr += '<td>'+number_format(totalPrice)+'</td></tr>';
+      priceStr += '<td class="ref">'+number_format(totalPrice)+'</td></tr>';
       $('#priceTable thead').append(testStr);
       $('#priceTable tbody').append(priceStr);
     } else {
       alert('중복수강되어 수강료 계산을 할 수가 없습니다');
     }
-
+    if(totalPrice > 5000000){
+      $('.jarang').removeClass('hidden');
+    }
   })
 
   // 과목 선택시 시간표에 보이게 안보이게

@@ -4,7 +4,7 @@
   require("../config/db_config.php");
 
   // student 테이블
-  $sql="INSERT INTO student (stud_name, stud_name_eng, stud_phone_number, stud_email, stud_school, stud_grade) VALUES('".$_SESSION['student']['stud_name']."', '".$_SESSION['student']['stud_name_eng']."', '".$_SESSION['student']['stud_phone_number']."', '".$_SESSION['student']['stud_email']."', '".$_SESSION['student']['stud_school']."', '".$_SESSION['student']['stud_grade']."')";
+  $sql="INSERT INTO student (stud_name, stud_name_eng, stud_phone_number, stud_email, stud_school, stud_grade, major_id) VALUES('".$_SESSION['student']['stud_name']."', '".$_SESSION['student']['stud_name_eng']."', '".$_SESSION['student']['stud_phone_number']."', '".$_SESSION['student']['stud_email']."', '".$_SESSION['student']['stud_school']."', '".$_SESSION['student']['stud_grade']."', '".$_SESSION['major']."')";
   $result = mysqli_query($conn, $sql);
   // 입력된 학생 ID 구하기
   $stud_id = mysqli_insert_id($conn);

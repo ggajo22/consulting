@@ -1,8 +1,5 @@
 <?php
-  require("../config/db_config.php");
-
   $_SESSION['wish'] = $_POST['data'];
-
 /*
   $data = $_session['wish'];
   foreach($data as $key){

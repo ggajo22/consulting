@@ -19,8 +19,17 @@
     $apList[] = $row;
   }
 
+  // 전공 리스트 가져오기
+  $sql = "SELECT * FROM major";
+  $result = mysqli_query($conn, $sql);
+  $majorList = array();
+  while($row = mysqli_fetch_assoc($result))
+  {
+    $majorList[] = $row;
+  }
+
   // 대학 리스트 가져오기
-  $sql = "SELECT uni_id, uni_name FROM university WHERE uni_sort = 'top10' or uni_sort = 'top25' or uni_sort = 'top50'";
+  $sql = "SELECT uni_id, major_id, uni_rank, uni_name FROM university";
   $result = mysqli_query($conn, $sql);
   $uniList = array();
   while($row = mysqli_fetch_assoc($result))
@@ -41,7 +50,13 @@
 
   .q_g{position: relative; left: 110px; top: 50px;}
 
-  .q0 .q{position:relative; left:20px; top:50px;}
+  .q0 .q{position:relative; left:200px; top:50px;}
+  #major_input{position:relative; left:190px; top:100px; width:700px; height: 500px;}
+  #major_list{position:relative; font-size:1.2em; width:700px;  overflow:scroll; border:1px solid #C00;}
+  #major_list th{padding:10px; text-align:center; border-bottom:2px solid #C00; background-color:#C00;}
+  #major_list tbody tr td{border-top:1px solid #C00; color:#C00;}
+
+  .q0 .q0-1{position:relative; left:20px; top:50px;}
   #dream_uni_input{position:relative; left:190px; top:30px; width:700px; height: 500px;}
   #uni_list{position:relative; font-size:1.2em; width:700px;  overflow:scroll; border:1px solid #C00;}
   #uni_list th{padding:10px; text-align:left; border-bottom:2px solid #C00; background-color:#C00;}
@@ -172,20 +187,31 @@
         <ul class="image_container">
           <li class="q0">
             <p class="q_g"><img src="res/img/q0_g.png" alt=""></p>
-            <p class="q"><img src="res/img/q0.png" /></p>
+            <p class="q"><img src="res/img/q0_1.png" /></p>
+            <div id="major_input" class="major_wrap">
+              <table id="major_list" class="table table-hover text-center">
+                <thead><tr><th>Major</th></tr></thead>
+                <tbody>
+                  <?php
+                    foreach($majorList as $ml){
+                      echo '<tr class="clsChk1" data-mid="'.$ml['major_id'].'"><td>'.$ml['major_name'].'</tr>';
+                    }
+                  ?>
+                </tbody>
+                <tfoot></tfoot>
+              </table>
+            </div>
+          </li>
+          <li class="q0">
+            <p class="q_g"><img src="res/img/q0_g.png" alt=""></p>
+            <p class="q0-1"><img src="res/img/q0.png" /></p>
             <div id="dream_uni_input" class="form-group uni_object">
               <input type="hidden" name="stud_id" value="1">
               <input type="text" class="form-control hidden" id="uni_id" name="uni_id">
               <div style='overflow-y:auto;' class=scroll>
                 <table id="uni_list" class="table table-hover">
-                  <thead><tr><th>Rank</th><th>The Name of University</th></tr></thead>
-                  <tbody>
-                    <?php
-                      foreach($uniList as $ul){
-                        echo '<tr class="clsChk1" data-rank="'.$ul['uni_id'].'"><td>'.$ul['uni_id'].'</td><td>'.$ul['uni_name'].'</tr>';
-                      }
-                    ?>
-                  </tbody>
+                  <thead></thead>
+                  <tbody></tbody>
                   <tfoot></tfoot>
                 </table>
               </div>
@@ -198,11 +224,11 @@
               <input type="hidden" name="test_id" value="30">
               <input type="text" class="form-control hidden" id="gpa_uw_score" name="test_score">
               <div class="gpa_wrap">
-                <div class="t_option t1 clsChk2" data-gpa="3.8"></div>
-                <div class="t_option t2 clsChk2" data-gpa="3.6"></div>
-                <div class="t_option t3 clsChk2" data-gpa="3.4"></div>
-                <div class="t_option t4 clsChk2" data-gpa="3.2"></div>
-                <div class="t_option t5 clsChk2" data-gpa="3.0"></div>
+                <div class="t_option t1 clsChk3" data-gpa="3.8"></div>
+                <div class="t_option t2 clsChk3" data-gpa="3.6"></div>
+                <div class="t_option t3 clsChk3" data-gpa="3.4"></div>
+                <div class="t_option t4 clsChk3" data-gpa="3.2"></div>
+                <div class="t_option t5 clsChk3" data-gpa="3.0"></div>
               </div>
             </div>
           </li>
@@ -210,8 +236,8 @@
             <p class="q_g"><img src="res/img/q2_g.png"></p>
             <p class="q"><img src="res/img/q2.png"></p>
             <div class="test_wrap">
-              <div class="test_option test_sat clsChk3" id="sat_btn"></div>
-              <div class="test_option test_act clsChk3" id="act_btn"></div>
+              <div class="test_option test_sat clsChk4" id="sat_btn"></div>
+              <div class="test_option test_act clsChk4" id="act_btn"></div>
             </div>
           </li>
           <li class="q2">
@@ -221,11 +247,11 @@
               <input type="hidden" name="test_id" value="1">
               <input type="text" class="form-control hidden" id="sat_score" name="test_score">
               <div class="sat_wrap">
-                <div class="t_option t1 clsChk4" data-sat="1500"></div>
-                <div class="t_option t2 clsChk4" data-sat="1400"></div>
-                <div class="t_option t3 clsChk4" data-sat="1300"></div>
-                <div class="t_option t4 clsChk4" data-sat="1200"></div>
-                <div class="t_option t5 clsChk4" data-sat="1100"></div>
+                <div class="t_option t1 clsChk5" data-sat="1500"></div>
+                <div class="t_option t2 clsChk5" data-sat="1400"></div>
+                <div class="t_option t3 clsChk5" data-sat="1300"></div>
+                <div class="t_option t4 clsChk5" data-sat="1200"></div>
+                <div class="t_option t5 clsChk5" data-sat="1100"></div>
               </div>
             </div>
             <div id="act_score_input" class="form-group hidden">
@@ -233,11 +259,11 @@
               <input type="hidden" name="test_id" value="2">
               <input type="text" class="form-control hidden" id="act_score" name="test_score">
               <div class="act_wrap">
-                <div class="t_option t1 clsChk4" data-act="33"></div>
-                <div class="t_option t2 clsChk4" data-act="30"></div>
-                <div class="t_option t3 clsChk4" data-act="28"></div>
-                <div class="t_option t4 clsChk4" data-act="26"></div>
-                <div class="t_option t5 clsChk4" data-act="24"></div>
+                <div class="t_option t1 clsChk5" data-act="33"></div>
+                <div class="t_option t2 clsChk5" data-act="30"></div>
+                <div class="t_option t3 clsChk5" data-act="28"></div>
+                <div class="t_option t4 clsChk5" data-act="26"></div>
+                <div class="t_option t5 clsChk5" data-act="24"></div>
               </div>
             </div>
           </li>
@@ -245,11 +271,11 @@
             <p class="q_g"><img src="res/img/q3_g.png"></p>
             <p class="q"><img src="res/img/q3.png"></p>
             <div class="sat2_wrap">
-              <div class="test2_option test2_0 clsChk5" data-no="0"></div>
-              <div class="test2_option test2_1 clsChk5" data-no="1"></div>
-              <div class="test2_option test2_2 clsChk5" data-no="2"></div>
-              <div class="test2_option test2_3 clsChk5" data-no="3"></div>
-              <div class="test2_option test2_4 clsChk5" data-no="4"></div>
+              <div class="test2_option test2_0 clsChk6" data-no="0"></div>
+              <div class="test2_option test2_1 clsChk6" data-no="1"></div>
+              <div class="test2_option test2_2 clsChk6" data-no="2"></div>
+              <div class="test2_option test2_3 clsChk6" data-no="3"></div>
+              <div class="test2_option test2_4 clsChk6" data-no="4"></div>
             </div>
           </li>
           <li class="q3">
@@ -259,6 +285,7 @@
             <div id="sat2_score_input"></div>
             <!-- SAT2 input 창 skeleton -->
             <div class="form-group sat2_skeleton hidden temp">
+              <input type="hidden" name="test_sort" value="SAT2">
               <select name="test_id" class="talkbubble">
                 <option value=''>&nbsp;과목 선택</option>
                 <?php
@@ -267,7 +294,7 @@
                   }
                 ?>
               </select>
-              <input type="text" class="form-control talkbubble test_score clsChk5" data-checked="true" name="test_score" placeholder="SAT2 점수 입력">
+              <input type="text" class="form-control talkbubble test_score clsChk7" data-checked="true" name="test_score" placeholder="SAT2 점수 입력">
             </div>
           </li>
           <li class="q4">
@@ -275,11 +302,11 @@
             <p class="q"><img src="res/img/q4.png"></p>
             <input type="text" class="form-control hidden" id="ap_no">
             <div class="ap_wrap">
-              <div class="test2_option test2_0 clsChk7" data-no="0"></div>
-              <div class="test2_option test2_1 clsChk7" data-no="1"></div>
-              <div class="test2_option test2_2 clsChk7" data-no="2"></div>
-              <div class="test2_option test2_3 clsChk7" data-no="3"></div>
-              <div class="test2_option test2_4 clsChk7" data-no="4"></div>
+              <div class="test2_option test2_0 clsChk8" data-no="0"></div>
+              <div class="test2_option test2_1 clsChk8" data-no="1"></div>
+              <div class="test2_option test2_2 clsChk8" data-no="2"></div>
+              <div class="test2_option test2_3 clsChk8" data-no="3"></div>
+              <div class="test2_option test2_4 clsChk8" data-no="4"></div>
             </div>
           </li>
           <li class="q4">
@@ -289,6 +316,7 @@
             <div id="ap_score_input"></div>
             <!-- AP input 창 skeleton -->
             <div class="form-group ap_skeleton hidden temp">
+              <input type="hidden" name="test_sort" value="AP">
               <select name="test_id" class="talkbubble">
                 <option value=''>&nbsp;과목 선택</option>
                 <?php
@@ -297,7 +325,7 @@
                   }
                 ?>
               </select>
-              <input type="text" class="form-control talkbubble test_score clsChk7" data-checked="true" name="test_score" placeholder="AP 점수 입력">
+              <input type="text" class="form-control talkbubble test_score clsChk9" data-checked="true" name="test_score" placeholder="AP 점수 입력">
             </div>
           </li>
           <li class="q5">
@@ -307,11 +335,11 @@
               <input type="hidden" name="test_id" value="3">
               <input type="text" class="form-control hidden" id="toefl_score" name="test_score">
               <div class="toefl_wrap">
-                <div class="t_option t1 clsChk9" data-toefl="110"></div>
-                <div class="t_option t2 clsChk9" data-toefl="100"></div>
-                <div class="t_option t3 clsChk9" data-toefl="90"></div>
-                <div class="t_option t4 clsChk9" data-toefl="80"></div>
-                <div class="t_option t5 clsChk9" data-toefl="0"></div>
+                <div class="t_option t1 clsChk10" data-toefl="110"></div>
+                <div class="t_option t2 clsChk10" data-toefl="100"></div>
+                <div class="t_option t3 clsChk10" data-toefl="90"></div>
+                <div class="t_option t4 clsChk10" data-toefl="80"></div>
+                <div class="t_option t5 clsChk10" data-toefl="0"></div>
               </div>
             </div>
           </li>
@@ -324,13 +352,54 @@
   </form>
 </div>
 <script type="text/javascript">
+  // major List
+  var major = null;
+  var $selectedItem = null;
+  var $majorList = $('#major_list tbody');
+  var uniArray = new Array();
+  var $uniList = $('#uni_list tbody');
+  $majorList.on('click', 'tr', function(){
+    radioSelect($(this));
+    $(this).attr('data-checked', true);
+    var mid = $(this).data('mid');
+    major = mid;
+    uniListForMajor();
+    makeUniArray();
+  })
+
+  function uniMajorSubmit(){
+    console.log(major)
+    $.post('add_process/major_session.php', {mid:major}, function(mid){
+    })
+  }
+
+  function radioSelect($item){
+    if($selectedItem) $selectedItem.removeClass('listSelect');
+
+    $selectedItem = $item;
+    $selectedItem.addClass('listSelect');
+  }
+
   // 대학리스트 스크롤 height 설정
   $('.scroll').css('height', 446);
 
+// 전공별 대학 List 만들기
+function uniListForMajor(){
+  var uniList = <?=json_encode($uniList);?>;
+  var uniStr = null;
+  $('#uni_list thead').empty();
+  $('#uni_list thead').append('<tr><th>Rank</th><th>The Name of University</th></tr>');
+  $.each(uniList, function(index, uni){
+    if(uni.major_id == major){
+      uniStr += '<tr class="clsChk2" data-rank="'+uni.uni_id+'"><td>'+uni.uni_rank+'</td><td>'+uni.uni_name+'</tr>';
+    }
+  })
+  $uniList.empty();
+  $uniList.append(uniStr);
+}
 
   // 원하는 대학 list 배열에 담기
-  var uniArray = new Array();
-  var $uniList = $('#uni_list tbody');
+function makeUniArray(){
   $('#uni_list tr').click(function(){
       $(this).toggleClass('listSelect');
       $(this).attr('data-checked', true);
@@ -348,12 +417,16 @@
     }
     console.log(uniArray);
   })
+}
 
-  // 원하는 대학 list post로 넘기기 post는 next 버튼 _slideIndex == 0 에 설정
+
+  // 원하는 대학 list post로 넘기기 post는 next 버튼 _slideIndex == 1 에 설정
   function uniArraySubmit(){
     $.post('add_process/wish_add_session.php', {data:uniArray}, function(){
     })
   }
+
+
 
   var $gpa_uw_score = $('#gpa_uw_score');
   var $gpa_wrap = $('.gpa_wrap');
@@ -507,6 +580,10 @@
     }
 */
     if(_slideIndex == 0){
+      uniMajorSubmit();
+    }
+
+    if(_slideIndex == 1){
       uniArraySubmit();
     }
 
